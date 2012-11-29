@@ -20,19 +20,18 @@ SQL
 
 books_url = "http://bookpickings.brainpickings.org/"
 doc = Nokogiri::HTML(open(books_url))
-books_info = doc.css("ol#posts")
-n = 0
-books_info.map do |book|
-  n = n
-  link = doc.css("li.post a").map {|i| i['href']}[n]
-  img = doc.css("li.post img").map {|i| i['src']}[n]
-  title = doc.css("a.post_title h1").map {|title| title.text.strip}[n]
-  author = doc.css("a.post_title h2").map {|title| title.text.strip}[n]
-  description = doc.css("a.post_title p:last-child").map {|title| title.text.strip}[n]
+books_info = doc.css("ol#posts li")
 
-db.execute("INSERT INTO books (title, link, author, description, img) 
+books_info.each do |book_li|
+  # now to find the elements in each individual book_li
+  link = book_li.css("a").attribute("href") #is that the nokogiri HTML element attribute method?
+  img = book_li.css("img").attribute("src")
+  title = book_li.css("h1").text.strip
+  author = book_li.css("h2").text.strip
+  description = book_li.css("a.post_title p:last-child")..text.strip}
+
+  db.execute("INSERT INTO books (title, link, author, description, img) 
             VALUES (?, ?, ?, ?, ?)", title[n], link, author, description, img)
-n += 1
 
 end
 
